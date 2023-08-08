@@ -1,64 +1,41 @@
 #include <stdio.h>
 
-// Structure to represent a process
-struct Process {
-  int pid; // Process ID
-  int bt; // Burst time
-  int art; // Arrival time 
-};
+void findWaitingTime(int processes[], int n, int bt[], int wt[]) {
+    wt[0] = 0;
+    for (int i = 1; i < n; i++)
+        wt[i] = bt[i - 1] + wt[i - 1];
+}
 
-// FCFS scheduling function
-void FCFS(struct Process proc[], int n) {
-  
-  int wt[n], tat[n], total_wt = 0, total_tat = 0;
+void findTurnAroundTime(int processes[], int n, int bt[], int wt[], int tat[]) {
+    for (int i = 0; i < n; i++)
+        tat[i] = bt[i] + wt[i];
+}
 
-  // Sort processes by arrival time
-  for(int i=0; i<n; i++) {
-    for(int j=i+1; j<n; j++) {
-      if(proc[i].art > proc[j].art) {
-        struct Process temp = proc[i];
-        proc[i] = proc[j];
-        proc[j] = temp;
-      }
+void findavgTime(int processes[], int n, int bt[]) {
+    int wt[n], tat[n], total_wt = 0, total_tat = 0;
+    findWaitingTime(processes, n, bt, wt);
+    findTurnAroundTime(processes, n, bt, wt, tat);
+
+    printf("Processes Burst time Waiting time Turn around time\n");
+    for (int i = 0; i < n; i++) {
+        total_wt = total_wt + wt[i];
+        total_tat = total_tat + tat[i];
+        printf(" %d ", (i + 1));
+        printf("\t\t%d ", bt[i]);
+        printf("\t\t%d", wt[i]);
+        printf("\t\t%d\n", tat[i]);
     }
-  }
 
-  // Find completion times
-  int ct[n];
-  ct[0] = proc[0].art + proc[0].bt;
-  for(int i=1; i<n; i++) {
-    ct[i] = ct[i-1] + proc[i].bt;
-  }
-  
-  // Calculate waiting times
-  for(int i=0; i<n; i++) {
-    wt[i] = ct[i] - proc[i].bt - proc[i].art;
-    total_wt += wt[i];
-  }
-
-  // Calculate turnaround times
-  for(int i=0; i<n; i++) {
-    tat[i] = ct[i] - proc[i].art;
-    total_tat += tat[i];
-  }
-
-  // Print process details
-  printf("Processes  Burst Time  Arrival Time  Completion Time  Waiting Time  Turn Around Time\n");
-  for(int i=0; i<n; i++) {
-    printf("P%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", proc[i].pid, proc[i].bt, proc[i].art, ct[i], wt[i], tat[i]);
-  }
-
-  // Print average waiting and turnaround times
-  printf("Average waiting time = %f\n", (float)total_wt / n); 
-  printf("Average turnaround time = %f\n", (float)total_tat / n);
+    float avg_wt = (float)total_wt / n;
+    float avg_tat = (float)total_tat / n;
+    printf("Average waiting time = %.2f\n", avg_wt);
+    printf("Average turn around time = %.2f\n", avg_tat);
 }
 
 int main() {
-  
-  struct Process proc[] = { {1, 6, 1}, {2, 8, 0}, {3, 7, 2}, {4, 3, 4} };
-  int n = sizeof(proc)/sizeof(proc[0]);
-
-  FCFS(proc, n);
-
-  return 0;
+    int processes[] = {1, 2, 3};
+    int n = sizeof(processes) / sizeof(processes[0]);
+    int burst_time[] = {10, 5, 8};
+    findavgTime(processes, n, burst_time);
+    return 0;
 }
