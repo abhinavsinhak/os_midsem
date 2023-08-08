@@ -1,56 +1,42 @@
 #include <stdio.h>
 #include <stdlib.h>
-
-int mutex = 1;
-int full = 0;
-int empty = 10, x = 0;
-
-void producer() {
-    --mutex;
-    ++full;
-    --empty;
-    x++;
-    printf("\nProducer produces item %d", x);
-    ++mutex;
-}
-
-void consumer() {
-    --mutex;
-    --full;
-    ++empty;
-    printf("\nConsumer consumes item %d", x);
-    x--;
-    ++mutex;
-}
-
-int main() {
-    int n, i;
-
-    #pragma omp critical
-    for (i = 1; i > 0; i++) {
-        printf("\nEnter your choice:");
-        scanf("%d", &n);
-
-        switch (n) {
-            case 1:
-                if ((mutex == 1) && (empty != 0)) {
-                    producer();
-                } else {
-                    printf("Buffer is full!");
-                }
-                break;
-
-            case 2:
-                if ((mutex == 1) && (full != 0)) {
-                    consumer();
-                } else {
-                    printf("Buffer is empty!");
-                }
-                break;
-
-            case 3:
-                exit(0);
-                break;
-        }
+#include <pthread.h>
+#include <semaphore.h>
+#include <unistd.h>
+sem_t room;
+sem_t chopstick[5];
+void *philosopher(void *);
+void eat(int);
+int main()
+{
+    int i, a[5];
+    pthread_t tid[5];
+    sem_init(&room, 0, 4);
+    for (i = 0; i < 5; i++)
+        sem_init(&chopstick[i], 0, 1);
+    for (i = 0; i < 5; i++)
+    {
+        a[i] = i;
+        pthread_create(&tid[i], NULL, philosopher, (void *)&a[i]);
     }
+    for (i = 0; i < 5; i++)
+        pthread_join(tid[i], NULL);
+}
+void *philosopher(void *num)
+{
+    int phil = *(int *)num;
+    sem_wait(&room);
+    printf("\nPhilosopher %d has entered room", phil);
+    sem_wait(&chopstick[phil]);
+    sem_wait(&chopstick[(phil + 1) % 5]);
+    eat(phil);
+    sleep(2);
+    printf("\nPhilosopher %d has finished eating", phil);
+    sem_post(&chopstick[(phil + 1) % 5]);
+    sem_post(&chopstick[phil]);
+    sem_post(&room);
+}
+void eat(int phil)
+{
+    printf("\nPhilosopher %d is eating", phil);
 }

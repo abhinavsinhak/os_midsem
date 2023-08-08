@@ -1,86 +1,58 @@
-#include <stdio.h>
-#include <stdlib.h>
 #include <pthread.h>
 #include <semaphore.h>
-
-#define NUM_READERS 3
-#define NUM_WRITERS 2
-
-sem_t rw_mutex, mutex;
-int data = 0;
-int reader_count = 0;
-
-void *reader(void *arg) {
-    int reader_id = *(int *)arg;
-
-    while (1) {
-       
-        sem_wait(&mutex);
-        reader_count++;
-        if (reader_count == 1) {
-            sem_wait(&rw_mutex);
-        }
-        sem_post(&mutex);
-
-        printf("Reader %d reads data: %d\n", reader_id, data);
-
-        
-        sem_wait(&mutex);
-        reader_count--;
-        if (reader_count == 0) {
-            sem_post(&rw_mutex);
-        }
-        sem_post(&mutex);
-
-        
-        usleep(rand() % 1000000);
-    }
+#include <stdio.h>
+sem_t wrt;
+pthread_mutex_t mutex;
+int cnt = 1;
+int numreader = 0;
+void *writer(void *wno)
+{
+    sem_wait(&wrt);
+    cnt = cnt * 2;
+    printf("Writer %d modified cnt to %d\n", (*((int *)wno)), cnt);
+    sem_post(&wrt);
 }
-
-void *writer(void *arg) {
-    int writer_id = *(int *)arg;
-
-    while (1) {
-        
-        sem_wait(&rw_mutex);
-
-        data = rand() % 100;
-        printf("Writer %d writes data: %d\n", writer_id, data);
-
-        sem_post(&rw_mutex);
-
-        usleep(rand() % 1000000);
+void *reader(void *rno)
+{
+    pthread_mutex_lock(&mutex);
+    numreader++;
+    if (numreader == 1)
+    {
+        sem_wait(&wrt);
     }
+    pthread_mutex_unlock(&mutex);
+    printf("Reader %d: read cnt as %d\n", *((int *)rno), cnt);
+    pthread_mutex_lock(&mutex);
+    numreader--;
+    if (numreader == 0)
+    {
+        sem_post(&wrt);
+    }
+    pthread_mutex_unlock(&mutex);
 }
-
-int main() {
-    pthread_t readers[NUM_READERS], writers[NUM_WRITERS];
-    int reader_ids[NUM_READERS], writer_ids[NUM_WRITERS];
-
-   
-    sem_init(&rw_mutex, 0, 1);
-    sem_init(&mutex, 0, 1);
-
-    for (int i = 0; i < NUM_READERS; i++) {
-        reader_ids[i] = i + 1;
-        pthread_create(&readers[i], NULL, reader, &reader_ids[i]);
+int main()
+{
+    pthread_t read[10], write[5];
+    pthread_mutex_init(&mutex, NULL);
+    sem_init(&wrt, 0, 1);
+    int a[10] = {1, 2, 3, 4, 5, 6, 7, 8, 9, 10};
+    for (int i = 0; i < 10; i++)
+    {
+        pthread_create(&read[i], NULL, (void *)reader, (void *)&a[i]);
     }
-
-  
-    for (int i = 0; i < NUM_WRITERS; i++) {
-        writer_ids[i] = i + 1;
-        pthread_create(&writers[i], NULL, writer, &writer_ids[i]);
+    for (int i = 0; i < 5; i++)
+    {
+        pthread_create(&write[i], NULL, (void *)writer, (void *)&a[i]);
     }
-
-    for (int i = 0; i < NUM_READERS; i++) {
-        pthread_join(readers[i], NULL);
+    for (int i = 0; i < 10; i++)
+    {
+        pthread_join(read[i], NULL);
     }
-    for (int i = 0; i < NUM_WRITERS; i++) {
-        pthread_join(writers[i], NULL);
+    for (int i = 0; i < 5; i++)
+    {
+        pthread_join(write[i], NULL);
     }
-
-    sem_destroy(&rw_mutex);
-    sem_destroy(&mutex);
-
+    pthread_mutex_destroy(&mutex);
+    sem_destroy(&wrt);
     return 0;
 }
