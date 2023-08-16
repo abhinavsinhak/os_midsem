@@ -38,7 +38,6 @@ void main()
         {
             temp[(fault - 1) % frames] = refstr[i];
         }
-        printf("\n");
 
         for (int j = 0; j < frames; j++)
         {

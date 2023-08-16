@@ -1,112 +1,100 @@
-#include <stdio.h>
-struct file
+#include<stdio.h>
+static int mark[20];
+int i,j,np,nr;
+
+int main()
 {
-    int all[10];
-    int max[10];
-    int need[10];
-    int flag;
-};
-void main()
+int alloc[10][10],request[10][10],avail[10],r[10],w[10];
+
+printf("\nEnter the no of process: ");
+scanf("%d",&np);
+printf("\nEnter the no of resources: ");
+scanf("%d",&nr);
+for(i=0;i<nr;i++)
 {
-    struct file f[10];
-    int fl;
-    int i, j, k, p, b, n, r, g, cnt = 0, id, newr;
-    int avail[10], seq[10];
-    clrscr();
-    printf("Enter number of processes -- ");
-    scanf("%d", &n);
-    printf("Enter number of resources -- ");
-    scanf("%d", &r);
-    for (i = 0; i < n; i++)
-    {
-        printf("Enter details for P%d", i);
-        printf("\nEnter allocation\t -- \t");
-        for (j = 0; j < r; j++)
-            scanf("%d", &f[i].all[j]);
-        printf("Enter Max\t\t -- \t");
-        for (j = 0; j < r; j++)
-            scanf("%d", &f[i].max[j]);
-        f[i].flag = 0;
+printf("\nTotal Amount of the Resource R%d: ",i+1);
+scanf("%d",&r[i]);
+}
+
+
+
+
+printf("\nEnter the request matrix:");
+
+for(i=0;i<np;i++)
+for(j=0;j<nr;j++)
+scanf("%d",&request[i][j]);
+
+printf("\nEnter the allocation matrix:");
+for(i=0;i<np;i++)
+for(j=0;j<nr;j++)
+scanf("%d",&alloc[i][j]);
+/*Available Resource calculation*/
+for(j=0;j<nr;j++)
+{
+avail[j]=r[j];
+for(i=0;i<np;i++)
+{
+avail[j]-=alloc[i][j];
+
+}
+}
+
+//marking processes with zero allocation
+
+for(i=0;i<np;i++)
+{
+int count=0;
+ for(j=0;j<nr;j++)
+   {
+      if(alloc[i][j]==0)
+        count++;
+      else
+        break;
     }
-    printf("\nEnter Available Resources\t -- \t");
-    for (i = 0; i < r; i++)
-        scanf("%d", &avail[i]);
-    printf("\nEnter New Request Details -- ");
-    printf("\nEnter pid \t -- \t");
-    scanf("%d", &id);
-    printf("Enter Request for Resources \t -- \t");
-    for (i = 0; i < r; i++)
+ if(count==nr)
+ mark[i]=1;
+}
+// initialize W with avail
+
+for(j=0;j<nr;j++)
+    w[j]=avail[j];
+
+//mark processes with request less than or equal to W
+for(i=0;i<np;i++)
+{
+int canbeprocessed=0;
+ if(mark[i]!=1)
+{
+   for(j=0;j<nr;j++)
     {
-        scanf("%d", &newr);
-        f[id].all[i] += newr;
-        30 avail[i] = avail[i] - newr;
-    }
-    for (i = 0; i < n; i++)
-    {
-        for (j = 0; j < r; j++)
-        {
-            f[i].need[j] = f[i].max[j] - f[i].all[j];
-            if (f[i].need[j] < 0)
-                f[i].need[j] = 0;
-        }
-    }
-    cnt = 0;
-    fl = 0;
-    while (cnt != n)
-    {
-        g = 0;
-        for (j = 0; j < n; j++)
-        {
-            if (f[j].flag == 0)
-            {
-                b = 0;
-                for (p = 0; p < r; p++)
-                {
-                    if (avail[p] >= f[j].need[p])
-                        b = b + 1;
-                    else
-                        b = b - 1;
-                }
-                if (b == r)
-                {
-                    printf("\nP%d is visited", j);
-                    seq[fl++] = j;
-                    f[j].flag = 1;
-                    for (k = 0; k < r; k++)
-                        avail[k] = avail[k] + f[j].all[k];
-                    cnt = cnt + 1;
-                    printf("(");
-                    for (k = 0; k < r; k++)
-                        printf("%3d", avail[k]);
-                    printf(")");
-                    g = 1;
-                }
-            }
-        }
-        if (g == 0)
-        {
-            printf("\n REQUEST NOT GRANTED -- DEADLOCK OCCURRED");
-            printf("\n SYSTEM IS IN UNSAFE STATE");
-            goto y;
-        }
-    }
-    printf("\nSYSTEM IS IN SAFE STATE");
-    printf("\nThe Safe Sequence is -- (");
-    for (i = 0; i < fl; i++)
-        printf("P%d ", seq[i]);
-    printf(")");
-y:
-    printf("\nProcess\t\tAllocation\t\tMax\t\t\tNeed\n");
-    for (i = 0; i < n; i++)
-    {
-        printf("P%d\t", i);
-        for (j = 0; j < r; j++)
-            31 printf("%6d", f[i].all[j]);
-        for (j = 0; j < r; j++)
-            printf("%6d", f[i].max[j]);
-        for (j = 0; j < r; j++)
-            printf("%6d", f[i].need[j]);
-        printf("\n");
-    }
-    getch();
+      if(request[i][j]<=w[j])
+        canbeprocessed=1;
+      else
+         {
+         canbeprocessed=0;
+         break;
+          }
+     }
+if(canbeprocessed)
+{
+mark[i]=1;
+
+for(j=0;j<nr;j++)
+w[j]+=alloc[i][j];
+}
+}
+}
+
+//checking for unmarked processes
+int deadlock=0;
+for(i=0;i<np;i++)
+if(mark[i]!=1)
+deadlock=1;
+
+
+if(deadlock)
+printf("\n Deadlock detected");
+else
+printf("\n No Deadlock possible");
 }
