@@ -1,54 +1,45 @@
-#include <iostream>
-#include <queue>
-#include <vector>
-
-using namespace std;
-
-struct Process {
-    int id;
-    int burstTime;
-};
-
-void multiLevelQueue(vector<queue<Process>>& queues, int timeQuantum) {
-    for (int i = 0; i < queues.size(); i++) {
-        while (!queues[i].empty()) {
-            Process p = queues[i].front();
-            queues[i].pop();
-            
-            if (p.burstTime > timeQuantum) {
-                p.burstTime -= timeQuantum;
-                cout << "Process " << p.id + 1 << " from Queue " << i + 1 << " executed for " << timeQuantum << " units." << endl;
-                queues[i].push(p);
-            } else {
-                cout << "Process " << p.id + 1 << " from Queue " << i + 1 << " executed for " << p.burstTime << " units." << endl;
-            }
-        }
-    }
-}
-
-int main() {
-    int numQueues, numProcesses, timeQuantum;
-
-    cout << "Enter the number of queues: ";
-    cin >> numQueues;
-
-    vector<queue<Process>> queues(numQueues);
-
-    cout << "Enter the number of processes: ";
-    cin >> numProcesses;
-
-    vector<Process> processes(numProcesses);
-    for (int i = 0; i < numProcesses; i++) {
-        processes[i].id = i;
-        cout << "Enter burst time for process " << i + 1 << ": ";
-        cin >> processes[i].burstTime;
-        queues[0].push(processes[i]);
-    }
-
-    cout << "Enter time quantum: ";
-    cin >> timeQuantum;
-
-    multiLevelQueue(queues, timeQuantum);
-
-    return 0;
+#include<stdio.h>
+int main()
+{
+	int p[20],bt[20], su[20], wt[20],tat[20],i, k, n, temp;
+	float wtavg, tatavg;
+	printf("Enter the number of processes:");
+	scanf("%d",&n);
+	for(i=0;i<n;i++)
+	{
+		p[i] = i;
+		printf("Enter the Burst Time of Process%d:", i);
+		scanf("%d",&bt[i]);
+		printf("System/User Process (0/1) ? ");
+		scanf("%d", &su[i]);
+	}
+	for(i=0;i<n;i++)
+		for(k=i+1;k<n;k++)
+			if(su[i] > su[k])
+			{
+			temp=p[i];
+			p[i]=p[k];
+			p[k]=temp;
+			temp=bt[i];
+			bt[i]=bt[k];
+			bt[k]=temp;
+			temp=su[i];
+			su[i]=su[k];
+			su[k]=temp;
+			}
+	wtavg = wt[0] = 0;
+	tatavg = tat[0] = bt[0];
+	for(i=1;i<n;i++)
+	{
+		wt[i] = wt[i-1] + bt[i-1];
+		tat[i] = tat[i-1] + bt[i];
+		wtavg = wtavg + wt[i];
+		tatavg = tatavg + tat[i];
+	}
+	printf("\nPROCESS\t SYSTEM/USER PROCESS \tBURST TIME\tWAITING TIME\tTURNAROUND TIME");
+	for(i=0;i<n;i++)
+		printf("\n%d \t\t %d \t\t %d \t\t %d \t\t %d ",p[i],su[i],bt[i],wt[i],tat[i]);
+	printf("\nAverage Waiting Time is --- %f",wtavg/n);
+	printf("\nAverage Turnaround Time is --- %f",tatavg/n);
+	return 0;
 }

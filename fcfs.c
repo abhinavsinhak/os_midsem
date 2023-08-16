@@ -1,46 +1,70 @@
 #include <stdio.h>
+#include <stdlib.h>
 
-void findWaitingTime(int processes[], int n, int bt[], int wt[])
-{
-    wt[0] = 0;
-    for (int i = 1; i < n; i++)
-        wt[i] = bt[i - 1] + wt[i - 1];
+void sort(int* a, int* b, int n) {
+    for (int i = 1; i < n; i++) {
+        int j = i - 1;
+        int key = a[i];
+        int pro_key = b[i];
+        while (j >= 0 && key < a[j]) {
+            a[j + 1] = a[j];
+            b[j + 1] = b[j];
+            j--;
+        }
+        a[j + 1] = key;
+        b[j + 1] = pro_key;
+    }
 }
 
-void findTurnAroundTime(int processes[], int n, int bt[], int wt[], int tat[])
-{
-    for (int i = 0; i < n; i++)
-        tat[i] = bt[i] + wt[i];
-}
+int main() {
+    int no_of_processes;
+    printf("Enter the number of processes: ");
+    scanf("%d", &no_of_processes);
+    printf("\n");
 
-void findavgTime(int processes[], int n, int bt[])
-{
-    int wt[n], tat[n], total_wt = 0, total_tat = 0;
-    findWaitingTime(processes, n, bt, wt);
-    findTurnAroundTime(processes, n, bt, wt, tat);
+    int* at = (int*)malloc(no_of_processes * sizeof(int));
+    int* bt = (int*)malloc(no_of_processes * sizeof(int));
 
-    printf("Processes Burst time Waiting time Turn around time\n");
-    for (int i = 0; i < n; i++)
-    {
-        total_wt = total_wt + wt[i];
-        total_tat = total_tat + tat[i];
-        printf(" %d ", (i + 1));
-        printf("\t\t%d ", bt[i]);
-        printf("\t\t%d", wt[i]);
-        printf("\t\t%d\n", tat[i]);
+    printf("Enter arrival time and burst time:\n");
+    for (int i = 0; i < no_of_processes; i++) {
+        scanf("%d %d", &at[i], &bt[i]);
+    }
+    printf("\n");
+
+    sort(at, bt, no_of_processes);
+
+    int* ct = (int*)malloc(no_of_processes * sizeof(int));
+    ct[0] = at[0] + bt[0];
+    for (int i = 1; i < no_of_processes; i++) {
+        if (ct[i - 1] > at[i])
+            ct[i] = ct[i - 1] + bt[i];
+        else
+            ct[i] = at[i] + bt[i];
     }
 
-    float avg_wt = (float)total_wt / n;
-    float avg_tat = (float)total_tat / n;
-    printf("Average waiting time = %.2f\n", avg_wt);
-    printf("Average turn around time = %.2f\n", avg_tat);
-}
+    int* tat = (int*)malloc(no_of_processes * sizeof(int));
+    int* wt = (int*)malloc(no_of_processes * sizeof(int));
+    int sum_tat = 0, sum_wt = 0;
+    for (int i = 0; i < no_of_processes; i++) {
+        tat[i] = ct[i] - at[i];
+        wt[i] = tat[i] - bt[i];
+        sum_tat += tat[i];
+        sum_wt += wt[i];
+    }
 
-int main()
-{
-    int processes[] = {1, 2, 3};
-    int n = sizeof(processes) / sizeof(processes[0]);
-    int burst_time[] = {10, 5, 8};
-    findavgTime(processes, n, burst_time);
+    printf("at\tbt\tct\ttat\twt\n");
+    for (int i = 0; i < no_of_processes; i++) {
+        printf("%d\t%d\t%d\t%d\t%d\n", at[i], bt[i], ct[i], tat[i], wt[i]);
+    }
+
+    printf("Avg Turnaround Time: %0.2f\nAvg Waiting Time: %0.2f\n",(float)sum_tat / no_of_processes,(float) sum_wt / no_of_processes);
+
+  
+    free(at);
+    free(bt);
+    free(ct);
+    free(tat);
+    free(wt);
+
     return 0;
 }
