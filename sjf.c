@@ -1,82 +1,71 @@
+//write the structure to store process and arrival time and burst time
 #include <stdio.h>
 #include <stdlib.h>
-
-void sort(int *a, int *b, int st, int n) {
-  int k, j, key1, key2;
-  for (int i = st; i < n; i++) {
-    j = i - 1;
-    k = i - 1;
-    key1 = a[i];
-    key2 = b[i];
-    while (j >= st && key1 < a[j]) {
-      a[j + 1] = a[j];
-      b[k + 1] = b[k];
-      j--;
-      k--;
+#include <string.h>
+#include <math.h>
+struct process
+{
+    int arrival_time;
+    int burst_time;
+    int pid;
+    int completion_time;
+    int turn_around_time;
+    int waiting_time;
+    int response_time;
+    int flag;
+};
+//sjf function
+void sjf()
+{
+    int n;
+    printf("Enter the number of processes: ");
+    scanf("%d", &n);
+    struct process p[n];
+    int i;
+    for (i = 0; i < n; i++)
+    {
+        printf("Enter the arrival time of process %d: ", i + 1);
+        scanf("%d", &p[i].arrival_time);
+        printf("Enter the burst time of process %d: ", i + 1);
+        scanf("%d", &p[i].burst_time);
+        p[i].pid = i + 1;
+        p[i].flag = 0;
     }
-    a[j + 1] = key1;
-    b[k + 1] = key2;
-  }
+    int time = 0;
+    int count = 0;
+    int min = 1000;
+    int index = 0;
+    while (count != n)
+    {
+        for (i = 0; i < n; i++)
+        {
+            if (p[i].arrival_time <= time && p[i].flag == 0)
+            {
+                if (p[i].burst_time < min)
+                {
+                    min = p[i].burst_time;
+                    index = i;
+                }
+            }
+        }
+        p[index].flag = 1;
+        p[index].completion_time = time + p[index].burst_time;
+        p[index].turn_around_time = p[index].completion_time - p[index].arrival_time;
+        p[index].waiting_time = p[index].turn_around_time - p[index].burst_time;
+        p[index].response_time = p[index].waiting_time;
+        time = p[index].completion_time;
+        count++;
+        min = 1000;
+    }
+    printf("Process\tArrival Time\tBurst Time\tCompletion Time\tTurn Around Time\tWaiting Time\tResponse Time\n");
+    for (i = 0; i < n; i++)
+    {
+        printf("%d\t%d\t\t%d\t\t%d\t\t%d\t\t%d\t\t%d\n", p[i].pid, p[i].arrival_time, p[i].burst_time, p[i].completion_time, p[i].turn_around_time, p[i].waiting_time, p[i].response_time);
+    }
 }
-
-int main() {
-  int no_of_processes;
-  printf("Enter the number of processes: ");
-  scanf("%d", &no_of_processes);
-  printf("\n");
-
-  int *at = (int *)malloc(no_of_processes * sizeof(int));
-  int *bt = (int *)malloc(no_of_processes * sizeof(int));
-
-  printf("Enter arrival time and burst time:\n");
-  for (int i = 0; i < no_of_processes; i++) {
-    scanf("%d %d", &at[i], &bt[i]);
-  }
-  printf("\n");
-
-  sort(at, bt, 0, no_of_processes);
-
-  int *ct = (int *)malloc(no_of_processes * sizeof(int));
-
-  ct[0] = at[0] + bt[0];
-  for (int i = 1; i < no_of_processes; i++) {
-    if (ct[i - 1] > at[i]) {
-      sort(bt, at, i, no_of_processes);
-      ct[i] = ct[i - 1] + bt[i];
-    } else {
-      ct[i] = at[i] + bt[i];
-    }
-  }
-
-  int *tat = (int *)malloc(no_of_processes * sizeof(int));
-  for (int i = 0; i < no_of_processes; i++) {
-    tat[i] = ct[i] - at[i];
-  }
-
-  int *wt = (int *)malloc(no_of_processes * sizeof(int));
-  for (int i = 0; i < no_of_processes; i++) {
-    wt[i] = tat[i] - bt[i];
-  }
-
-  printf("at     bt      ct       tat    wt\n");
-  for (int i = 0; i < no_of_processes; i++) {
-    printf("%d \t%d \t%d \t%d \t%d\n", at[i], bt[i], ct[i], tat[i], wt[i]);
-  }
-
-  int sum_tat = 0, sum_wt = 0;
-  for (int i = 0; i < no_of_processes; i++) {
-    sum_tat += tat[i];
-    sum_wt += wt[i];
-  }
-
-  printf("Avg Turnaround Time: %.2f\nAvg Waiting Time: %.2f\n",
-         (float)sum_tat / no_of_processes, (float)sum_wt / no_of_processes);
-
-  free(at);
-  free(bt);
-  free(ct);
-  free(tat);
-  free(wt);
-
-  return 0;
+//write the main function to call the sjf function
+int main()
+{
+    sjf();
+    return 0;
 }
