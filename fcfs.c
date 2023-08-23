@@ -1,5 +1,6 @@
 #include <stdio.h>
-#include <stdlib.h>
+
+#define MAX_PROCESSES 100
 
 void sort(int* a, int* b, int n) {
     for (int i = 1; i < n; i++) {
@@ -22,8 +23,8 @@ int main() {
     scanf("%d", &no_of_processes);
     printf("\n");
 
-    int* at = (int*)malloc(no_of_processes * sizeof(int));
-    int* bt = (int*)malloc(no_of_processes * sizeof(int));
+    int at[MAX_PROCESSES];
+    int bt[MAX_PROCESSES];
 
     printf("Enter arrival time and burst time:\n");
     for (int i = 0; i < no_of_processes; i++) {
@@ -33,7 +34,7 @@ int main() {
 
     sort(at, bt, no_of_processes);
 
-    int* ct = (int*)malloc(no_of_processes * sizeof(int));
+    int ct[MAX_PROCESSES];
     ct[0] = at[0] + bt[0];
     for (int i = 1; i < no_of_processes; i++) {
         if (ct[i - 1] > at[i])
@@ -42,8 +43,8 @@ int main() {
             ct[i] = at[i] + bt[i];
     }
 
-    int* tat = (int*)malloc(no_of_processes * sizeof(int));
-    int* wt = (int*)malloc(no_of_processes * sizeof(int));
+    int tat[MAX_PROCESSES];
+    int wt[MAX_PROCESSES];
     int sum_tat = 0, sum_wt = 0;
     for (int i = 0; i < no_of_processes; i++) {
         tat[i] = ct[i] - at[i];
@@ -58,13 +59,6 @@ int main() {
     }
 
     printf("Avg Turnaround Time: %0.2f\nAvg Waiting Time: %0.2f\n",(float)sum_tat / no_of_processes,(float) sum_wt / no_of_processes);
-
-  
-    free(at);
-    free(bt);
-    free(ct);
-    free(tat);
-    free(wt);
 
     return 0;
 }
