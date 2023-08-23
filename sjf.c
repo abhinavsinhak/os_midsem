@@ -1,4 +1,3 @@
-//write the structure to store process and arrival time and burst time
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>

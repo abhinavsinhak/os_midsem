@@ -1,5 +1,4 @@
 #include <stdio.h>
-
 int main() {
     int t[20], n, i, tohm[20], tot = 0;
     float avhm;
