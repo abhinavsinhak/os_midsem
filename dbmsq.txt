@@ -1,0 +1,222 @@
+1. What is database management systems?
+   A DBMS is software that allows users to store, manage, a
+   nd retrieve data in a structured and organized manner.
+    It provides tools to define, create, manipulate, and maintain databases.
+
+2. What are the disadvantages of file processing systems?
+   - Data redundancy and inconsistency
+   - Data isolation and integrity issues
+   - Difficulty in data sharing and accessing
+   - Data integrity and security concerns
+   - Program-data dependence
+
+3. What are the three levels of abstraction in a database system?
+   - Physical level: Deals with how data is stored on hardware.
+   - Logical level: Focuses on how data is structured and organized.
+   - View level: Represents a user's perspective of the data.
+
+4. What are views in a database?
+   Views are virtual tables created based on the result of a SELECT query. 
+   They allow users to retrieve and manipulate data without directly accessing the underlying tables.
+
+5. Explain the ACID properties in database management.
+   ACID stands for Atomicity, Consistency, Isolation, and Durability. 
+   It defines the properties that ensure the reliability of transactions in a database system.
+
+6. What is the atomicity problem in database transactions?
+   The atomicity problem refers to ensuring that a transaction is treated as a single,
+    indivisible unit of work. In case of a failure, the system should ensure that either 
+    the entire transaction is completed or none of its changes are applied.
+
+7. What is a concurrency control anomaly in databases?
+   Concurrency control anomalies occur when multiple transactions access 
+   and modify the same data concurrently, leading to inconsistent or incorrect results. 
+   Anomalies include lost updates, uncommitted data, and inconsistent retrievals.
+
+8. What does SQL stand for?
+   SQL stands for Structured Query Language. It's a domain-specific
+    language used for managing and manipulating relational databases.
+
+9. Define a relational database management system (RDBMS).
+   A Relational DBMS is a type of DBMS that stores and manages data in 
+   tabular form, with relationships defined between tables.
+
+10. What is a transaction in a database context?
+    A transaction is a sequence of one or more database operations 
+    (such as reads and writes) that are executed as a single unit of work.
+
+11. Explain the concepts of entity, entity type, attribute, and attribute type.
+    - Entity: A real-world object or concept.
+    - Entity Type: A collection of similar entities.
+    - Attribute: A property or characteristic of an entity.
+    - Attribute Type: The domain or range of values that an attribute can take.
+
+12. Differentiate between a strong and a weak entity set.
+    A strong entity set is one that can exist independently, while a weak
+     entity set depends on a strong entity set for its existence and has a partial key.
+
+13. What is referential integrity in a relational database?
+    Referential integrity ensures that foreign key values in a table reference 
+    valid primary key values in another table.
+
+14. Define integrity constraints in a database.
+    Integrity constraints are rules that ensure the accuracy and consistency of 
+    data in a database. Examples include primary keys, foreign keys, and unique constraints.
+
+15. Compare and contrast JOIN, LEFT OUTER JOIN, RIGHT OUTER JOIN, and SEMI JOIN.
+    - Join: Combines rows from two or more tables based on a related column.
+    - Left Outer Join: Includes all rows from the left table and matching rows from the right table.
+    - Right Outer Join: Includes all rows from the right table and matching rows from the left table.
+    - Semi Join: Returns rows from one table if they have matching rows in another table.
+
+16. What is serializability in database transactions?
+    Serializability is a property that ensures that a schedule of concurrent 
+    transactions produces the same result as if they were executed serially, one after the other.
+
+17. Name and describe the different states of a transaction.
+    - Active: When a transaction is executing.
+    - Partially Committed: After a transaction executes its last statement but
+     before it's officially committed.
+    - Committed: After a transaction is successfully completed.
+    - Failed: After a transaction encounters an error and cannot proceed.
+    - Aborted: After a transaction is rolled back due to a failure.
+
+18. What are triggers in the context of databases? Provide an example.
+    Triggers are database objects that are automatically executed or fired in response
+     to specific events, such as INSERT, UPDATE, or DELETE operations.
+
+19. What is normalization and why is it important in a database?
+    Normalization is the process of structuring a relational database to reduce data 
+    redundancy and ensure data integrity.
+
+20. Explain the rules for achieving first normal form (1NF), second normal form (2NF), 
+third normal form (3NF), and BCNF.
+    - 1NF: Eliminate duplicate columns.
+    - 2NF: Meet 1NF and ensure non-key attributes depend only on the primary key.
+    - 3NF: Meet 2NF and remove transitive dependencies.
+    - BCNF: Meet 3NF and eliminate partial dependencies.
+
+21. What is an assertion in a database?
+    An assertion is a condition specified in SQL that must be true for the database 
+    to be in a consistent state.
+
+22. Define functional dependency in the context of database normalization.
+    A functional dependency is a relationship between two sets of attributes in a 
+    relation where the value of one set determines the value of another.
+
+23. What is a data dictionary in a database management system?
+    A data dictionary is a centralized repository that stores metadata about the database, 
+    including definitions of tables, columns, constraints, and more.
+
+24. Explain the concepts of physical and logical data independence.
+    - Physical Independence: The ability to modify the physical storage structures without
+     affecting the logical schema.
+    - Logical Independence: The ability to modify the logical schema without affecting 
+    application programs.
+
+25. What is two-phase locking in database concurrency control?
+    Two-Phase Locking is a concurrency control mechanism where a transaction 
+    goes through two phases: an acquisition phase (locks are acquired) and a validation phase (locks are released).
+
+26. Why is database normalization required?
+    Database normalization is required to eliminate data redundancy, reduce 
+    the risk of anomalies, and ensure efficient storage and retrieval.
+
+27. What are dangling tuples in a relational database?
+    Dangling tuples are rows in a child table that reference non-existent
+     rows in a parent table due to a foreign key violation.
+
+28. When do deadlocks occur in transaction processing?
+    Deadlocks occur when two or more transactions are waiting for resources 
+    held by each other, causing a circular waiting scenario.
+
+29. Define cascading rollback in the context of database transactions.
+    Cascading rollback occurs when a system automatically undoes all changes 
+    made by a transaction that causes a deadlock.
+
+30. What is a schedule in database transactions?
+    A schedule is an ordered sequence of actions (operations) performed by a 
+    set of transactions in a database system.
+
+31. What is the difference between committing and aborting a transaction?
+    - Committing: Finalizes a transaction and makes its changes permanent.
+    - Aborting/Rollback: Undoes the changes made by a transaction and restores
+     the database to its state before the transaction started.
+
+32. Explain the syntax of various SQL queries.
+    SQL query syntax varies based on the specific query being used. Refer to SQL 
+    documentation or resources for detailed syntax.
+
+33. Compare and contrast indexing and hashing as data access methods.
+    - Indexing: Organizes data using data structures like B-trees to speed up data retrieval.
+    - Hashing: Uses hash functions to map data to specific buckets for quick access.
+
+34. What is a bucket overflow in hashing?
+    A bucket overflow occurs in hashing when a bucket exceeds its capacity, requiring
+     additional storage or handling.
+
+35. Describe date functions and string operations in SQL.
+    Date functions allow manipulation of date and time values. String operations involve
+     operations on text data, including concatenation, substring, etc.
+
+36. Name different types of data in a database.
+    Different types of data in a database include numeric data, character data, date and 
+    time data, binary data, and more.
+
+37. Provide examples of insertion, deletion, and update anomalies in a relational database.
+    - Insertion Anomaly: Inability to insert data without having all required attributes.
+    - Deletion Anomaly: Removing data may lead to loss of other related data.
+    - Update Anomaly: Updating data in one place but not in others leads to inconsistency.
+
+38. What are procedures in a database context? Provide examples.
+    Procedures are precompiled programs stored in the database that can be executed using 
+    a specific command. Examples include stored procedures, functions, and triggers.
+
+39. What are cursors in a database?
+    Cursors are database objects used to retrieve and manipulate data row by row in a result set.
+
+40. Define an inverted index in database systems.
+    An inverted index is a data structure that stores a mapping between words or terms
+     and their occurrences in a set of documents.
+
+41. Explain the difference between two-tier and three-tier database architectures.
+    - Two-Tier Architecture: Client communicates directly with the database server.
+    - Three-Tier Architecture: Client interacts with an application server that communicates
+     with the database server.
+
+42. What are the steps involved in query processing?
+    Query processing involves parsing, optimization, and execution of a query to retrieve 
+    data from the database.
+
+43. Why should null values be avoided in a database?
+    Null values can lead to ambiguity and difficulties in data comparisons and calculations.
+     They can also affect query results.
+
+44. How are views created in a database?
+    Views are created using the CREATE VIEW statement, specifying the view's name, columns,
+     and the SELECT query that defines the view's data.
+
+45. What are phantom records in a database?
+    Phantom records are records that appear during query execution but are not present in the 
+    database due to concurrent data modifications.
+
+46. What is Thomas' Write Rule in concurrency control?
+    Thomas' Write Rule is a principle used in concurrency control to prevent the overwriting 
+    of uncommitted data by another transaction.
+
+47. Describe the wait-die and wound-wait deadlock schemes.
+    - Wait-Die Scheme: Older transactions wait for newer ones; younger transactions abort
+     when requesting older resources.
+    - Wound-Wait Scheme: Older transactions wound younger ones; younger transactions wait for older ones.
+
+48. Explain the concepts of check and not null constraints.
+    - Check Constraint: Defines a condition that must be true for data to be inserted or updated.
+    - Not Null Constraint: Ensures that a column cannot contain null values.
+
+49. What is the purpose of the GRANT and REVOKE commands in SQL?
+    GRANT is used to give specific privileges to users or roles, while REVOKE is used to 
+    take back those privileges.
+
+50. What is the role of a database administrator (DBA)?
+    A DBA is responsible for managing, maintaining, and securing the database system. This
+     includes tasks like performance tuning, backup and recovery, security management, and schema design.
