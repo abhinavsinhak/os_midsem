@@ -116,7 +116,8 @@ third normal form (3NF), and BCNF.
 
 25. What is two-phase locking in database concurrency control?
     Two-Phase Locking is a concurrency control mechanism where a transaction 
-    goes through two phases: an acquisition phase (locks are acquired) and a validation phase (locks are released).
+    goes through two phases: an acquisition phase (locks are acquired) and a validation
+     phase (locks are released).
 
 26. Why is database normalization required?
     Database normalization is required to eliminate data redundancy, reduce 
