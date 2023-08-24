@@ -1,0 +1,203 @@
+MariaDB [(none)]> create database bank;
+Query OK, 1 row affected (0.002 sec)
+
+MariaDB [(none)]> use bank;
+Database changed
+MariaDB [bank]> create table account(account_number varchar(10) PRIMARY KEY,branch_name varchar(15),balance int);
+Query OK, 0 rows affected (0.295 sec)
+
+
+MariaDB [bank]>  insert into account values("A-101","Downtown",500),("A-215","Mianus",700),("A-102","Perryridge",400),("A-305","Round Hill",350),("A-201","Brighton",900),("A-222","Redwood",700),("A-217","Brighton",750);
+Query OK, 7 rows affected (0.120 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+MariaDB [bank]> select*from account;
++----------------+-------------+---------+
+| account_number | branch_name | balance |
++----------------+-------------+---------+
+| A-101          | Downtown    |     500 |
+| A-102          | Perryridge  |     400 |
+| A-201          | Brighton    |     900 |
+| A-215          | Mianus      |     700 |
+| A-217          | Brighton    |     750 |
+| A-222          | Redwood     |     700 |
+| A-305          | Round Hill  |     350 |
++----------------+-------------+---------+
+7 rows in set (0.062 sec)
+
+MariaDB [bank]> insert into loan values("L-11","Round Hill",900),("L-14","Downtown",1500),("L-15","Perryridge",1500),("L-16","Perryridge",1300),("L-17","Downtown",1000),("L-23","Redwood",2000),("L-93","Mianus",500);
+Query OK, 7 rows affected (0.062 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+
+MariaDB [bank]> select*from loan;
++-------------+-------------+--------+
+| loan_number | branch_name | amount |
++-------------+-------------+--------+
+| L-11        | Round Hill  |    900 |
+| L-14        | Downtown    |   1500 |
+| L-15        | Perryridge  |   1500 |
+| L-16        | Perryridge  |   1300 |
+| L-17        | Downtown    |   1000 |
+| L-23        | Redwood     |   2000 |
+| L-93        | Mianus      |    500 |
++-------------+-------------+--------+
+7 rows in set (0.000 sec)
+
+MariaDB [bank]>  create table customer(customer_name varchar(20),customer_street varchar(15),customer_city varchar(20));
+Query OK, 0 rows affected (0.242 sec)
+
+MariaDB [bank]>  insert into customer values("Adams","Spring","Pittsfield"),("Brooks","Senator","Brooklyn"),("Curry","North","Rye"),("Glenn","Sand Hill","Woodside"),("Green","Walnut","Stamford"),("Hayes","Main","Harrison"),("Johnson","Alma","Palo Alto"),("Jones","Main","Harrison"),("Lindsay","Park","Pittsfield"),("Smith","North","Rye"),("Turner","Putnam","Stamford"),("Williams","Nassau","Princeton");
+Query OK, 12 rows affected (0.053 sec)
+Records: 12  Duplicates: 0  Warnings: 0
+
+MariaDB [bank]> create table borrower(customer_name varchar(20),loan_number varchar(15),FOREIGN KEY (customer_name) REFERENCES customer(customer_name),FOREIGN KEY(loan_number) REFERENCES loan(loan_number));
+ERROR 1005 (HY000): Can't create table `bank`.`borrower` (errno: 150 "Foreign key constraint is incorrectly formed")
+MariaDB [bank]> alter table loan add PRIMARY KEY(loan_number);
+Query OK, 0 rows affected (0.605 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+MariaDB [bank]> alter table loan add PRIMARY KEY(loan_number);
+MariaDB [bank]> alter table customer add PRIMARY KEY(cutomer_name);
+
+MariaDB [bank]> create table borrower(customer_name varchar(20),loan_number varchar(15),FOREIGN KEY (customer_name) REFERENCES customer(customer_name),FOREIGN KEY(loan_number) REFERENCES loan(loan_number));
+Query OK, 0 rows affected (0.241 sec)
+
+MariaDB [bank]> update customer set customer_name = "Jackson" Where customer_name = "Johnson";
+Query OK, 1 row affected (0.097 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [bank]> insert into borrower values("Adams","L-16"),("Curry","L-93"),("Hayes","L-15"),("Jackson","L-14"),("Jones","L-17"),("Smith","L-11"),("Smith","L-23"),("Williams","L-17");
+Query OK, 8 rows affected (0.054 sec)
+Records: 8  Duplicates: 0  Warnings: 0
+
+MariaDB [bank]> select* from borrower;
++---------------+-------------+
+| customer_name | loan_number |
++---------------+-------------+
+| Adams         | L-16        |
+| Curry         | L-93        |
+| Hayes         | L-15        |
+| Jackson       | L-14        |
+| Jones         | L-17        |
+| Smith         | L-11        |
+| Smith         | L-23        |
+| Williams      | L-17        |
++---------------+-------------+
+8 rows in set (0.001 sec)
+
+MariaDB [bank]>  create table depositor(customer_name varchar(20),account_number varchar(10),FOREIGN KEY (customer_name) REFERENCES customer(customer_name),FOREIGN KEY (account_number) REFERENCES account(account_number));
+Query OK, 0 rows affected (0.630 sec)
+
+
+MariaDB [bank]> insert into depositor values("Hayes","A-102"),("Jackson","A-101"),("Jackson","A-201"),("Jones","A-217"),("Lindsay","A-222"),("Smith","A-215"),("Turner","A-305");
+Query OK, 7 rows affected (0.052 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+
+MariaDB [bank]> create table account_backup AS SELECT * FROM account;
+Query OK, 7 rows affected (0.290 sec)
+Records: 7  Duplicates: 0  Warnings: 0
+
+MariaDB [bank]> insert into account values("A-300","Redwood",500),("A-301","Redwood",300),("A-302","Brighton",700);
+Query OK, 3 rows affected (0.057 sec)
+Records: 3  Duplicates: 0  Warnings: 0
+
+MariaDB [bank]> select * from account;
++----------------+-------------+---------+
+| account_number | branch_name | balance |
++----------------+-------------+---------+
+| A-101          | Downtown    |     500 |
+| A-102          | Perryridge  |     400 |
+| A-201          | Brighton    |     900 |
+| A-215          | Mianus      |     700 |
+| A-217          | Brighton    |     750 |
+| A-222          | Redwood     |     700 |
+| A-300          | Redwood     |     500 |
+| A-301          | Redwood     |     300 |
+| A-302          | Brighton    |     700 |
+| A-305          | Round Hill  |     350 |
++----------------+-------------+---------+
+10 rows in set (0.000 sec)
+
+MariaDB [bank]>  alter table customer add contact_number varchar(15) default 'N/A';
+Query OK, 0 rows affected (0.795 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+MariaDB [bank]>  select* from customer;
++---------------+-----------------+---------------+----------------+
+| customer_name | customer_street | customer_city | contact_number |
++---------------+-----------------+---------------+----------------+
+| Adams         | Spring          | Pittsfield    | N/A            |
+| Brooks        | Senator         | Brooklyn      | N/A            |
+| Curry         | North           | Rye           | N/A            |
+| Glenn         | Sand Hill       | Woodside      | N/A            |
+| Green         | Walnut          | Stamford      | N/A            |
+| Hayes         | Main            | Harrison      | N/A            |
+| Jackson       | Alma            | Palo Alto     | N/A            |
+| Jones         | Main            | Harrison      | N/A            |
+| Lindsay       | Park            | Pittsfield    | N/A            |
+| Smith         | North           | Rye           | N/A            |
+| Turner        | Putnam          | Stamford      | N/A            |
+| Williams      | Nassau          | Princeton     | N/A            |
++---------------+-----------------+---------------+----------------+
+12 rows in set (0.036 sec)
+
+MariaDB [bank]>  update account set balance = balance * 0.1 +balance;
+Query OK, 10 rows affected (0.051 sec)
+Rows matched: 10  Changed: 10  Warnings: 0
+
+MariaDB [bank]> select* from account;
++----------------+-------------+---------+
+| account_number | branch_name | balance |
++----------------+-------------+---------+
+| A-101          | Downtown    |     550 |
+| A-102          | Perryridge  |     440 |
+| A-201          | Brighton    |     990 |
+| A-215          | Mianus      |     770 |
+| A-217          | Brighton    |     825 |
+| A-222          | Redwood     |     770 |
+| A-300          | Redwood     |     550 |
+| A-301          | Redwood     |     330 |
+| A-302          | Brighton    |     770 |
+| A-305          | Round Hill  |     385 |
++----------------+-------------+---------+
+10 rows in set (0.000 sec)
+
+
+MariaDB [bank]> update account join depositor on account.account_number = depositor.account_number set account.balance = 11000 where depositor.customer_name = "jones";
+Query OK, 1 row affected (0.073 sec)
+Rows matched: 1  Changed: 1  Warnings: 0
+
+MariaDB [bank]> select* from account;
++----------------+-------------+---------+
+| account_number | branch_name | balance |
++----------------+-------------+---------+
+| A-101          | Downtown    |     550 |
+| A-102          | Perryridge  |     440 |
+| A-201          | Brighton    |     990 |
+| A-215          | Mianus      |     770 |
+| A-217          | Brighton    |   11000 |
+| A-222          | Redwood     |     770 |
+| A-300          | Redwood     |     550 |
+| A-301          | Redwood     |     330 |
+| A-302          | Brighton    |     770 |
+| A-305          | Round Hill  |     385 |
++----------------+-------------+---------+
+10 rows in set (0.000 sec)
+
+MariaDB [bank]> select b.customer_name,d.account_number,b.loan_number from borrower b,depositor d where d.customer_name = b.customer_name;
++---------------+----------------+-------------+
+| customer_name | account_number | loan_number |
++---------------+----------------+-------------+
+| Hayes         | A-102          | L-15        |
+| Jackson       | A-101          | L-14        |
+| Jackson       | A-201          | L-14        |
+| Jones         | A-217          | L-17        |
+| Smith         | A-215          | L-11        |
+| Smith         | A-215          | L-23        |
++---------------+----------------+-------------+
+6 rows in set (0.001 sec)
+
+MariaDB [bank]> delete from account where account_number = "A-222";
+ERROR 1451 (23000): Cannot delete or update a parent row: a foreign key constraint fails (`bank`.`depositor`, CONSTRAINT `depositor_ibfk_2` FOREIGN KEY (`account_number`) REFERENCES `account` (`account_number`))

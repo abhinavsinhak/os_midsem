@@ -1,0 +1,411 @@
+
+MariaDB [(none)]> show databases;
++--------------------+
+| Database           |
++--------------------+
+| bank               |
+| information_schema |
+| mysql              |
+| performance_schema |
+| recruit            |
+| sushant            |
+| sys                |
++--------------------+
+7 rows in set (0.271 sec)
+
+MariaDB [(none)]> use bank;
+Database changed
+MariaDB [bank]> show tables;
++----------------+
+| Tables_in_bank |
++----------------+
+| account        |
+| account_backup |
+| borrower       |
+| customer       |
+| depositor      |
+| loan           |
++----------------+
+6 rows in set (0.008 sec)
+
+MariaDB [bank]> SELECT loan_number FROM loan WHERE branch_name = 'Perryridge' AND amount > 1200;
+Empty set (0.468 sec)
+
+MariaDB [bank]> select * from loan;
++-------------+-------------+--------+
+| loan_number | branch_name | amount |
++-------------+-------------+--------+
+| L-11        | Round Hill  |    900 |
+| L-14        | Downtown    |   1500 |
+| L-15        | Perryridge  |   1500 |
+| L-16        | Perryridge  |   1300 |
+| L-17        | Downtown    |   1000 |
+| L-23        | Redwood     |   2000 |
+| L-93        | Mianus      |    500 |
++-------------+-------------+--------+
+7 rows in set (0.000 sec)
+
+MariaDB [bank]> SELECT loan_number FROM loan WHERE branch_name = 'Perryrigdge' AND amount > 1200;
+Empty set (0.001 sec)
+
+MariaDB [bank]> SELECT loan_number FROM loan WHERE branch_name = 'Perryridge' AND amount > 1200;
++-------------+
+| loan_number |
++-------------+
+| L-15        |
+| L-16        |
++-------------+
+2 rows in set (0.000 sec)
+
+MariaDB [bank]> update loan set amount = amount * 100;
+Query OK, 7 rows affected (0.116 sec)
+Rows matched: 7  Changed: 7  Warnings: 0
+
+MariaDB [bank]> select * from loan;
++-------------+-------------+--------+
+| loan_number | branch_name | amount |
++-------------+-------------+--------+
+| L-11        | Round Hill  |  90000 |
+| L-14        | Downtown    | 150000 |
+| L-15        | Perryridge  | 150000 |
+| L-16        | Perryridge  | 130000 |
+| L-17        | Downtown    | 100000 |
+| L-23        | Redwood     | 200000 |
+| L-93        | Mianus      |  50000 |
++-------------+-------------+--------+
+7 rows in set (0.001 sec)
+
+MariaDB [bank]> SELECT loan_number
+    -> FROM loan
+    -> WHERE amount BETWEEN 90000 AND 100000;
++-------------+
+| loan_number |
++-------------+
+| L-11        |
+| L-17        |
++-------------+
+2 rows in set (0.000 sec)
+
+MariaDB [bank]> SELECT c.customer_name, b.loan_number
+    -> FROM customer c
+    -> JOIN borrower b ON c.customer_name = b.customer_name;
++---------------+-------------+
+| customer_name | loan_number |
++---------------+-------------+
+| Adams         | L-16        |
+| Curry         | L-93        |
+| Hayes         | L-15        |
+| Jackson       | L-14        |
+| Jones         | L-17        |
+| Smith         | L-11        |
+| Smith         | L-23        |
+| Williams      | L-17        |
++---------------+-------------+
+8 rows in set (0.293 sec)
+
+MariaDB [bank]> SELECT c.customer_name, b.loan_number FROM customer c JOIN borrower b ON c.customer_name = b.customer_name JOIN loan l ON b.loan_number = l.loan_number WHERE l.branch_name = 'Perryridge';
++---------------+-------------+
+| customer_name | loan_number |
++---------------+-------------+
+| Adams         | L-16        |
+| Hayes         | L-15        |
++---------------+-------------+
+2 rows in set (0.002 sec)
+
+
+MariaDB [bank]> SELECT br.customer_name, br.loan_number FROM borrower br JOIN loan l ON br.loan_number = l.loan_number WHERE l.branch_name = 'Perryridge';
++---------------+-------------+
+| customer_name | loan_number |
++---------------+-------------+
+| Adams         | L-16        |
+| Hayes         | L-15        |
++---------------+-------------+
+2 rows in set (0.001 sec)
+
+MariaDB [bank]> SELECT MAX(balance) AS highest_balance
+    -> FROM account
+    -> WHERE branch_name = 'Perryridge';
++-----------------+
+| highest_balance |
++-----------------+
+|             440 |
++-----------------+
+
+MariaDB [bank]> SELECT c.customer_name FROM customer c JOIN borrower b ON c.customer_name = b.customer_name JOIN loan l ON b.loan_number = l.loan_number WHERE l.branch_name = 'Perryridge' ORDER BY c.customer_name DESC;
++---------------+
+| customer_name |
++---------------+
+| Hayes         |
+| Adams         |
++---------------+
+2 rows in set (0.001 sec)
+
+MariaDB [bank]> SELECT c.customer_name, c.customer_street, c.customer_City FROM customer c WHERE c.customer_name NOT IN (SELECT customer_name FROM borrower);
++---------------+-----------------+---------------+
+| customer_name | customer_street | customer_City |
++---------------+-----------------+---------------+
+| Brooks        | Senator         | Brooklyn      |
+| Glenn         | Sand Hill       | Woodside      |
+| Green         | Walnut          | Stamford      |
+| Lindsay       | Park            | Pittsfield    |
+| Turner        | Putnam          | Stamford      |
++---------------+-----------------+---------------+
+5 rows in set (0.078 sec)
+
+MariaDB [bank]> CREATE TABLE average_balance AS SELECT branch_name, AVG(balance) AS avg_balance FROM account GROUP BY branch_name;
+Query OK, 6 rows affected, 1 warning (0.457 sec)
+Records: 6  Duplicates: 0  Warnings: 1
+
+MariaDB [bank]> select * from average_balance;
++-------------+-------------+
+| branch_name | avg_balance |
++-------------+-------------+
+| Brighton    |   4253.3333 |
+| Downtown    |    550.0000 |
+| Mianus      |    770.0000 |
+| Perryridge  |    440.0000 |
+| Redwood     |    550.0000 |
+| Round Hill  |    385.0000 |
++-------------+-------------+
+6 rows in set (0.000 sec)
+
+MariaDB [bank]> SELECT account.branch_name, (SELECT COUNT(DISTINCT depositor.customer_name) FROM depositor WHERE depositor.account_number = account.account_number) AS num_depositors, (SELECT COUNT(DISTINCT borrower.customer_name) FROM borrower WHERE borrower.loan_number IN (SELECT loan_number FROM loan WHERE loan.branch_name = account.branch_name)) AS num_borrowers FROM account;
++-------------+----------------+---------------+
+| branch_name | num_depositors | num_borrowers |
++-------------+----------------+---------------+
+| Downtown    |              1 |             3 |
+| Perryridge  |              1 |             2 |
+| Brighton    |              1 |             0 |
+| Mianus      |              1 |             1 |
+| Brighton    |              1 |             0 |
+| Redwood     |              1 |             1 |
+| Redwood     |              0 |             1 |
+| Redwood     |              0 |             1 |
+| Brighton    |              0 |             0 |
+| Round Hill  |              1 |             1 |
++-------------+----------------+---------------+
+10 rows in set (0.097 sec)
+
+MariaDB [bank]> SELECT branch_name, AVG(balance+1000) AS average_balance FROM account GROUP BY branch_name HAVING AVG(balance+1000) >= 5000;
++-------------+-----------------+
+| branch_name | average_balance |
++-------------+-----------------+
+| Brighton    |       5253.3333 |
++-------------+-----------------+
+1 row in set (0.001 sec)
+
+MariaDB [bank]> update account set balance = balance +1000;
+Query OK, 10 rows affected (0.024 sec)
+Rows matched: 10  Changed: 10  Warnings: 0
+
+MariaDB [bank]> SELECT branch_name, average_balance FROM ( SELECT branch_name, AVG(balance) AS average_balance FROM account GROUP BY branch_name ) AS subquery WHERE average_balance >= 5000;
++-------------+-----------------+
+| branch_name | average_balance |
++-------------+-----------------+
+| Brighton    |       5253.3333 |
++-------------+-----------------+
+1 row in set (0.001 sec)
+
+
+MariaDB [bank]> SELECT branch_name, SUM(amount) AS total_loan_amount
+    -> FROM loan
+    -> GROUP BY branch_name;
++-------------+-------------------+
+| branch_name | total_loan_amount |
++-------------+-------------------+
+| Downtown    |            250000 |
+| Mianus      |             50000 |
+| Perryridge  |            280000 |
+| Redwood     |            200000 |
+| Round Hill  |             90000 |
++-------------+-------------------+
+5 rows in set (0.003 sec)
+
+MariaDB [bank]> INSERT INTO loan (loan_number, amount)
+    -> VALUES ('LN001', 0);
+Query OK, 1 row affected (0.053 sec)
+
+MariaDB [bank]> SELECT loan_number
+    -> FROM loan
+    -> WHERE amount = 0;
++-------------+
+| loan_number |
++-------------+
+| LN001       |
++-------------+
+1 row in set (0.002 sec)
+
+MariaDB [bank]> SELECT customer_name FROM customer WHERE customer_name IN ( SELECT customer_name FROM depositor WHERE account_number IN ( SELECT account_number FROM account ) ) AND customer_name IN ( SELECT customer_name FROM borrower WHERE loan_number IN ( SELECT loan_number FROM loan ) );
++---------------+
+| customer_name |
++---------------+
+| Hayes         |
+| Jackson       |
+| Jones         |
+| Smith         |
++---------------+
+4 rows in set (0.001 sec)
+
+
+MariaDB [bank]> INSERT INTO account (account_number, branch_name, balance) VALUES ('A-501', 'Brooklyn', 5000), ('A-502', 'Manhattan', 8000), ('A-503', 'Queens', 3000), ('A-504', 'Brooklyn', 7000), ('A-505', 'Bronx', 6000);
+Query OK, 5 rows affected (0.025 sec)
+Records: 5  Duplicates: 0  Warnings: 0
+
+MariaDB [bank]> SELECT customer_name FROM customer WHERE customer_name NOT IN ('Jones', 'James') AND customer_name IN ( SELECT customer_name FROM borrower ) AND customer_name IN ( SELECT customer_name FROM account );
++---------------+
+| customer_name |
++---------------+
+| Adams         |
+| Curry         |
+| Hayes         |
+| Jackson       |
+| Smith         |
+| Williams      |
++---------------+
+6 rows in set (0.001 sec)
+
+
+MariaDB [bank]> SELECT DISTINCT a1.branch_name FROM account a1 WHERE ( SELECT SUM(a1.balance) FROM account a1 WHERE a1.branch_name = a1.branch_name ) > SOME ( SELECT SUM(a2.balance) FROM account a2 WHERE a2.branch_name = 'Brooklyn' GROUP BY a2.branch_name );
++-------------+
+| branch_name |
++-------------+
+| Downtown    |
+| Perryridge  |
+| Brighton    |
+| Mianus      |
+| Redwood     |
+| Round Hill  |
+| Manhattan   |
+| Queens      |
+| Bronx       |
+| Brooklyn    |
++-------------+
+
+MariaDB [bank]> SELECT DISTINCT a1.branch_name FROM account a1 WHERE ( SELECT SUM(a1.balance) FROM account a1 WHERE a1.branch_name = a1.branch_name ) > ALL ( SELECT SUM(a2.balance) FROM account a2 WHERE a2.branch_name = 'Brooklyn' GROUP BY a2.branch_name );
++-------------+
+| branch_name |
++-------------+
+| Downtown    |
+| Perryridge  |
+| Brighton    |
+| Mianus      |
+| Redwood     |
+| Round Hill  |
+| Manhattan   |
+| Queens      |
+| Bronx       |
++-------------+
+9 rows in set (0.002 sec)
+
+MariaDB [bank]> SELECT branch_name FROM account GROUP BY branch_name ORDER BY AVG(balance) DESC LIMIT 1;
++-------------+
+| branch_name |
++-------------+
+| Manhattan   |
++-------------+
+1 row in set (0.001 sec)
+
+MariaDB [bank]> SELECT DISTINCT c.customer_name FROM customer c WHERE EXISTS ( SELECT 1 FROM depositor d WHERE d.customer_name = c.customer_name ) AND EXISTS ( SELECT 1 FROM borrower b WHERE b.customer_name = c.customer_name );
++---------------+
+| customer_name |
++---------------+
+| Hayes         |
+| Jackson       |
+| Jones         |
+| Smith         |
++---------------+
+4 rows in set (0.001 sec)
+
+MariaDB [(none)]> use bank;
+Database changed
+MariaDB [bank]> SELECT customer_name
+    -> FROM depositor
+    -> WHERE account_number IN (
+    ->     SELECT account_number
+    ->     FROM account
+    ->     WHERE branch_name = 'Perryridge'
+    -> )
+    -> GROUP BY customer_name
+    -> HAVING COUNT(DISTINCT account_number) = 1;
++---------------+
+| customer_name |
++---------------+
+| Hayes         |
++---------------+
+
+MariaDB [bank]> SELECT d.customer_name
+    -> FROM depositor d
+    -> JOIN account a ON d.account_number = a.account_number
+    -> WHERE a.branch_name = 'perryridge'
+    -> GROUP BY d.customer_name
+    -> HAVING COUNT(d.account_number) >= 3;
++---------------+
+| customer_name |
++---------------+
+| Hayes         |
++---------------+
+
+MariaDB [bank]> SELECT DISTINCT c.customer_name
+    -> FROM customer c
+    -> LEFT OUTER JOIN depositor d ON c.customer_name = d.customer_name
+    -> LEFT OUTER JOIN borrower b ON c.customer_name = b.customer_name
+    -> WHERE b.loan_number IS NULL;
++---------------+
+| customer_name |
++---------------+
+| Brooks        |
+| Glenn         |
+| Green         |
+| Lindsay       |
+| Turner        |
++---------------+
+5 rows in set (0.063 sec)
+
+MariaDB [bank]> SELECT c.customer_name
+    -> FROM customer c
+    -> RIGHT OUTER JOIN borrower b ON c.customer_name = b.customer_name
+    -> LEFT OUTER JOIN depositor d ON c.customer_name = d.customer_name
+    -> WHERE d.account_number IS NULL;
++---------------+
+| customer_name |
++---------------+
+| Adams         |
+| Curry         |
+| Williams      |
++---------------+
+3 rows in set (0.002 sec)
+
+MariaDB [bank]> CREATE TABLE customer_class (
+    ->     customer_name VARCHAR(15),
+    ->     average_balance DECIMAL(10, 2),
+    ->     customer_category VARCHAR(15)
+    -> );
+Query OK, 0 rows affected (0.382 sec)
+
+MariaDB [bank]> INSERT INTO customer_class (customer_name, average_balance, customer_category)
+    -> SELECT c.customer_name,
+    ->        AVG(a.balance) AS average_balance,
+    ->        CASE
+    ->            WHEN AVG(a.balance) >= 2500000 THEN 'Potential customer'
+    ->            WHEN AVG(a.balance) > 1000000 AND AVG(a.balance) <= 1500000 THEN 'Mediocre customer'
+    ->            WHEN AVG(a.balance) <= 500000 THEN 'Normal customer'
+    ->        END AS customer_category
+    -> FROM customer c
+    -> JOIN depositor d ON c.customer_name = d.customer_name
+    -> JOIN account a ON d.account_number = a.account_number
+    -> GROUP BY c.customer_name;
+Query OK, 6 rows affected, 1 warning (0.408 sec)
+Records: 6  Duplicates: 0  Warnings: 1
+
+MariaDB [bank]> select * from customer_class;
++---------------+-----------------+-------------------+
+| customer_name | average_balance | customer_category |
++---------------+-----------------+-------------------+
+| Hayes         |         3146.67 | Normal customer   |
+| Jackson       |         1770.00 | Normal customer   |
+| Jones         |        12000.00 | Normal customer   |
+| Lindsay       |         1770.00 | Normal customer   |
+| Smith         |         1770.00 | Normal customer   |
+| Turner        |         1385.00 | Normal customer   |
++---------------+-----------------+-------------------+
+6 rows in set (0.002 sec)

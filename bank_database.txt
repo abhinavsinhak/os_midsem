@@ -1,0 +1,100 @@
+MariaDB [(none)]> create database bank;
+Query OK, 1 row affected (0.001 sec)
+
+MariaDB [(none)]> use bank;
+Database changed
+MariaDB [bank]> create table branch(branchname varchar(20),branchcity varchar(20),assest int);
+Query OK, 0 rows affected (0.501 sec)
+
+MariaDB [bank]> insert into branch values('Brighton','brooklyn','7100000');
+Query OK, 1 row affected (1.283 sec)
+
+MariaDB [bank]> insert into branch values('Downtown','brooklyn',9000000);
+Query OK, 1 row affected (0.046 sec)
+
+MariaDB [bank]> insert into branch values('Mianus','Horseneck','400000');
+Query OK, 1 row affected (0.054 sec)
+
+MariaDB [bank]> insert into branch values('Northtown','Rye','3700000');
+Query OK, 1 row affected (0.048 sec)
+
+MariaDB [bank]> insert into branch values('Perryridge','Horseneck','1700000');
+Query OK, 1 row affected (0.052 sec)
+
+MariaDB [bank]> insert into branch values('Pownal','Bennington','300000');
+Query OK, 1 row affected (0.046 sec)
+
+MariaDB [bank]> insert into branch values('Redwood','PaloAlto','2100000');
+Query OK, 1 row affected (0.050 sec)
+
+MariaDB [bank]> insert into branch values('Roundhill','Horseneck','8000000');
+Query OK, 1 row affected (0.156 sec)
+
+MariaDB [bank]> describe branch;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| branchname | varchar(20) | YES  |     | NULL    |       |
+| branchcity | varchar(20) | YES  |     | NULL    |       |
+| assest     | int(11)     | YES  |     | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+3 rows in set (0.140 sec)
+
+MariaDB [bank]> select * from branch;
++------------+------------+---------+
+| branchname | branchcity | assest  |
++------------+------------+---------+
+| Brighton   | brooklyn   | 7100000 |
+| Downtown   | brooklyn   | 9000000 |
+| Mianus     | Horseneck  |  400000 |
+| Northtown  | Rye        | 3700000 |
+| Perryridge | Horseneck  | 1700000 |
+| Pownal     | Bennington |  300000 |
+| Redwood    | PaloAlto   | 2100000 |
+| Roundhill  | Horseneck  | 8000000 |
++------------+------------+---------+
+8 rows in set (0.000 sec)
+
+MariaDB [bank]> create table dupbranch like branch;
+Query OK, 0 rows affected (0.208 sec)
+
+MariaDB [bank]> select * from information_schema.tables where table_schema='bank' and table_name='branch';
++---------------+--------------+------------+------------+--------+---------+------------+------------+----------------+-------------+-----------------+--------------+-----------+----------------+---------------------+---------------------+------------+--------------------+----------+----------------+---------------+------------------+-----------+
+| TABLE_CATALOG | TABLE_SCHEMA | TABLE_NAME | TABLE_TYPE | ENGINE | VERSION | ROW_FORMAT | TABLE_ROWS | AVG_ROW_LENGTH | DATA_LENGTH | MAX_DATA_LENGTH | INDEX_LENGTH | DATA_FREE | AUTO_INCREMENT | CREATE_TIME         | UPDATE_TIME         | CHECK_TIME | TABLE_COLLATION    | CHECKSUM | CREATE_OPTIONS | TABLE_COMMENT | MAX_INDEX_LENGTH | TEMPORARY |
++---------------+--------------+------------+------------+--------+---------+------------+------------+----------------+-------------+-----------------+--------------+-----------+----------------+---------------------+---------------------+------------+--------------------+----------+----------------+---------------+------------------+-----------+
+| def           | bank         | branch     | BASE TABLE | InnoDB |      10 | Dynamic    |          8 |           2048 |       16384 |               0 |            0 |         0 |           NULL | 2023-06-18 16:13:00 | 2023-06-18 16:15:31 | NULL       | utf8mb4_general_ci |     NULL |                |               |                0 | N         |
++---------------+--------------+------------+------------+--------+---------+------------+------------+----------------+-------------+-----------------+--------------+-----------+----------------+---------------------+---------------------+------------+--------------------+----------+----------------+---------------+------------------+-----------+
+1 row in set (0.091 sec)
+
+MariaDB [bank]> describe dupbranch;
++------------+-------------+------+-----+---------+-------+
+| Field      | Type        | Null | Key | Default | Extra |
++------------+-------------+------+-----+---------+-------+
+| branchname | varchar(20) | YES  |     | NULL    |       |
+| branchcity | varchar(20) | YES  |     | NULL    |       |
+| assest     | int(11)     | YES  |     | NULL    |       |
++------------+-------------+------+-----+---------+-------+
+3 rows in set (0.039 sec)
+
+MariaDB [bank]> select*from dupbranch;
+Empty set (0.000 sec)
+
+MariaDB [bank]> alter table branch modify branchname varchar(20) not null,modify branchcity varchar(20) not null,modify assest int not null;
+Query OK, 0 rows affected (0.637 sec)
+Records: 0  Duplicates: 0  Warnings: 0
+
+MariaDB [bank]> insert into branch values('abc',null,'7000000');
+ERROR 1048 (23000): Column 'branchcity' cannot be null
+
+MariaDB [bank]>  select * from branch where assest > 2500000;
++------------+------------+---------+
+| branchname | branchcity | assest  |
++------------+------------+---------+
+| Brighton   | brooklyn   | 7100000 |
+| Downtown   | brooklyn   | 9000000 |
+| Northtown  | Rye        | 3700000 |
+| Roundhill  | Horseneck  | 8000000 |
++------------+------------+---------+
+
+MariaDB [bank]> alter table branch add check (branchname in ("SBI", "Canara Bank", "Syndicate Bank"));
+ERROR 3819 (HY000): Check constraint branch chk_1' is violated.
