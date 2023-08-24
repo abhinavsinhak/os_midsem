@@ -1,0 +1,71 @@
+DELIMITER //
+
+CREATE PROCEDURE print_highest_salary_employees()
+BEGIN
+    DECLARE done INT DEFAULT FALSE;
+    DECLARE employee_name VARCHAR(255);
+    DECLARE department_name VARCHAR(255);
+    DECLARE max_salary DECIMAL(10, 2);
+
+    DECLARE cur CURSOR FOR
+    SELECT CONCAT(e.first_name, ' ', e.last_name) AS employee_name, d.department_name, MAX(e.salary) AS max_salary
+    FROM employees e
+    JOIN departments d ON e.department_id = d.department_id
+    GROUP BY d.department_name;
+
+    DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+
+    OPEN cur;
+
+    SELECT 'Employee Name', 'Department', 'Max Salary';
+
+    read_loop: LOOP
+        FETCH cur INTO employee_name, department_name, max_salary;
+        IF done THEN
+            LEAVE read_loop;
+        END IF;
+
+        SELECT employee_name, department_name, max_salary;
+    END LOOP;
+
+    CLOSE cur;
+END //
+
+DELIMITER ;
+
+
+
+
+////////////Function
+
+
+
+MariaDB [bank]> DELIMITER //
+MariaDB [bank]>
+MariaDB [bank]> CREATE FUNCTION get_accounts_by_customer(cust_name VARCHAR(50))
+    -> RETURNS VARCHAR(1000)
+    -> BEGIN
+    ->     DECLARE accounts VARCHAR(1000);
+    ->     SELECT GROUP_CONCAT(account_number) INTO accounts FROM depositor WHERE customer_name = cust_name;
+    ->     RETURN accounts;
+    -> END //
+Query OK, 0 rows affected (0.140 sec)
+
+MariaDB [bank]>
+MariaDB [bank]> DELIMITER ;
+MariaDB [bank]> SELECT get_accounts_by_customer('TURNER');
+
+
+MariaDB [bank]> DELIMITER //
+MariaDB [bank]>
+MariaDB [bank]> CREATE PROCEDURE print_number_of_accounts()
+    -> BEGIN
+    ->     DECLARE account_count INT;
+    ->     SELECT COUNT(*) INTO account_count FROM account;
+    ->     SELECT CONCAT('Number of accounts: ', account_count) AS result;
+    -> END //
+Query OK, 0 rows affected (0.143 sec)
+
+MariaDB [bank]>
+MariaDB [bank]> DELIMITER ;
+MariaDB [bank]> CALL print_number_of_accounts();
