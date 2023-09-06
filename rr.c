@@ -38,7 +38,7 @@ int main()
             x--;
             printf("\nProcess[%d]\t\t %d\t\t %d\t\t\t %d", i + 1,
                    burst_time[i], total - arrival_time[i], total - arrival_time[i] - burst_time[i]);
-            wait_time = wait_time + total - arrival_time[i] -
+            wait_time = wait_time + total - arrival_time[i]-
                         burst_time[i];
             turnaround_time = turnaround_time + total -
                               arrival_time[i];

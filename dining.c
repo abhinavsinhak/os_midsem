@@ -17,7 +17,7 @@ int main()
     for (i = 0; i < 5; i++)
     {
         a[i] = i;
-           pthread_create(&tid[i], NULL, philosopher, (void *)&a[i]);
+           pthread_create(&tid[i], NULL, philosopher,  (void *)&a[i]);
     }
     for (i = 0; i < 5; i++)
         pthread_join(tid[i], NULL);
