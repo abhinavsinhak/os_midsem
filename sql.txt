@@ -1,0 +1,49 @@
+-- Branch Table
+CREATE TABLE Branch (
+    branch_id INT PRIMARY KEY,
+    area_code INT,
+    no_of_subscribers INT,
+    address VARCHAR(255)
+);
+
+-- Subscriber Table
+CREATE TABLE Subscriber (
+    subscriber_id INT PRIMARY KEY,
+    area_code INT,
+    address VARCHAR(255),
+    person_id INT,
+    person_name VARCHAR(255), -- Add the person's name
+    person_phone_no VARCHAR(15),
+    person_type VARCHAR(255),
+    FOREIGN KEY (area_code) REFERENCES Branch(area_code),
+    FOREIGN KEY (person_id) REFERENCES Person(person_id)
+);
+
+-- Person Table
+CREATE TABLE Person (
+    person_id INT PRIMARY KEY,
+    person_name VARCHAR(255), -- Add the person's name
+    person_phone_no VARCHAR(15),
+    person_type VARCHAR(255)
+);
+
+-- Call Detail Table
+CREATE TABLE CallDetail (
+    call_id INT PRIMARY KEY,
+    call_type VARCHAR(255),
+    callee_phone_no VARCHAR(15),
+    caller_phone_no VARCHAR(15),
+    call_date DATE,
+    call_start_time TIME,
+    call_end_time TIME,
+    subscriber_id INT,
+    FOREIGN KEY (subscriber_id) REFERENCES Subscriber(subscriber_id)
+);
+
+-- Bill Generation Table
+CREATE TABLE BillGeneration (
+    bill_no INT PRIMARY KEY,
+    bill_amount DECIMAL(10, 2),
+    subscriber_id INT,
+    FOREIGN KEY (subscriber_id) REFERENCES Subscriber(subscriber_id)
+);
