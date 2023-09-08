@@ -47,3 +47,25 @@ CREATE TABLE BillGeneration (
     subscriber_id INT,
     FOREIGN KEY (subscriber_id) REFERENCES Subscriber(subscriber_id)
 );
+
+
+
+DELIMITER //
+
+CREATE FUNCTION GenerateBillForSubscriber(subscriber_name_param VARCHAR(255))
+RETURNS DECIMAL(10, 2)
+BEGIN
+    DECLARE total_cost DECIMAL(10, 2);
+
+    -- Calculate the total cost based on call details (assuming cost_per_minute)
+    SELECT SUM(TIMESTAMPDIFF(MINUTE, CallDetail.call_start_time, CallDetail.call_end_time) * cost_per_minute) 
+    INTO total_cost
+    FROM CallDetail
+    JOIN Subscriber ON CallDetail.subscriber_id = Subscriber.subscriber_id
+    JOIN Person ON Subscriber.person_id = Person.person_id
+    WHERE Person.person_name = subscriber_name_param;
+
+    RETURN total_cost;
+END //
+
+DELIMITER ;
