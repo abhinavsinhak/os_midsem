@@ -69,3 +69,68 @@ BEGIN
 END //
 
 DELIMITER ;
+
+
+
+
+
+    delimiter //
+   CREATE PROCEDURE generate_address_list()
+     BEGIN
+         DECLARE done INT DEFAULT FALSE;
+         DECLARE customer_name VARCHAR(255);
+         DECLARE customer_address VARCHAR(255);
+         DECLARE address_list TEXT DEFAULT '';
+    
+         DECLARE cur CURSOR FOR
+         SELECT customer_name, customer_city FROM customer;
+    
+         DECLARE CONTINUE HANDLER FOR NOT FOUND SET done = TRUE;
+    
+         OPEN cur;
+    
+         read_loop: LOOP
+             FETCH cur INTO customer_name, customer_address;
+             IF done THEN
+                 LEAVE read_loop;
+             END IF;
+    
+             SET address_list = CONCAT(address_list, customer_address, ', ');
+         END LOOP;
+    
+         CLOSE cur;
+    
+         
+    
+         SELECT address_list AS customer_addresses;
+     END; //
+     delimiter ;
+
+
+   delimiter //
+     create procedure cust_list()
+     begin
+     declare done int default false;
+     declare customer_name varchar(20);
+    
+     declare account_balance int ;
+     declare cur cursor for
+     select c.customer_name,a.balance from account a join depositor d on d.account_number = a.account_number 
+      join customer c on c.customer_name = d.customer_name order by a.balance desc limit 3;
+
+      declare continue handler for not found set done = true;
+
+      open cur;
+
+      read_loop: LOOP
+       fetch cur into customer_name, account_balance;
+       if done THEN
+         leave read_loop;
+        end if;
+         select customer_name,account_balance;
+        end LOOP;
+      close cur;
+      END;//
+      delimiter ;
+
+ 
