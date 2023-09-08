@@ -1,0 +1,255 @@
+MariaDB [(none)]> create database telephone;
+Query OK, 1 row affected (0.092 sec)
+
+MariaDB [(none)]> use telephone;
+Database changed
+MariaDB [telephone]> create table area_details(area_code int primary key,officer varchar(20),location varchar(50),no_of_subs int);
+Query OK, 0 rows affected (0.290 sec)
+MariaDB [telephone]> create table subscriber_details(area_code int,ph_no varchar(12) primary key,sub_name varchar(20),address varchar(50),type int check(type in (1,2,3,4,5)),local_calls int,foreign key(area_code) references area_details(area_code));
+Query OK, 0 rows affected (0.406 sec)
+MariaDB [telephone]> create table std_details(area_code int,ph_no varchar(12),call_lee varchar(12),call_date date,start_time time,end_time time,foreign key(ph_no,call_lee) references subscriber_details(ph_no.ph_no));
+Query OK, 0 rows affected (0.143 sec)
+
+MariaDB [telephone]> insert into area_details values(221,'Raju','pillachavady',1832),
+    -> (226,'sham','una',1576),
+    -> (220,'kumar','dularpur',1108),
+    -> (224,'anish','bangana',1200),
+    -> (228,'ramesh','tanoh',852),
+    -> (230,'meena','lathiani',963),
+    -> (225,'rakesh','malangar',712),
+    -> (229,'iyer','kalapet',2365),
+    -> (234,'jaggan','karaikal',3524),
+    -> (232,'sanjog','saharanpur',2569);
+Query OK, 10 rows affected (0.063 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+MariaDB [telephone]> select * from area_details;
++-----------+---------+--------------+------------+
+| area_code | officer | location     | no_of_subs |
++-----------+---------+--------------+------------+
+|       220 | kumar   | dularpur     |       1108 |
+|       221 | Raju    | pillachavady |       1832 |
+|       224 | anish   | bangana      |       1200 |
+|       225 | rakesh  | malangar     |        712 |
+|       226 | sham    | una          |       1576 |
+|       228 | ramesh  | tanoh        |        852 |
+|       229 | iyer    | kalapet      |       2365 |
+|       230 | meena   | lathiani     |        963 |
+|       232 | sanjog  | saharanpur   |       2569 |
+|       234 | jaggan  | karaikal     |       3524 |
++-----------+---------+--------------+------------+
+10 rows in set (0.001 sec)
+MariaDB [telephone]> insert into subscriber_details values(230,'260635','meena','52C lathiani',1,32),
+    -> (221,'262391','vithin reddy','round side pillachavady',1,32),
+    -> (226,'260622','Orthocare','main road una',3,32),
+    -> (232,'394523','jalayog','main chock dularpur',4,30),
+    -> (221,'143685','ayush reddy','nehru park pillachavady',1,32),
+    -> (232,'452356','PVR','PVR mega mall sharanpur','2',20),
+    -> (229,'127856','krishnamurti','chinna kalapet',1,30),
+    -> (234,'452354','stayanath','main town karaikal',1,30),
+    -> (226,'269752','suraj','colony bangana',1,30),
+    -> (220,'235689','ram','near fire station dularpur',1,32);
+Query OK, 10 rows affected (0.016 sec)
+Records: 10  Duplicates: 0  Warnings: 0
+
+MariaDB [telephone]> select * from subscriber_details;
++-----------+--------+--------------+----------------------------+------+-------------+
+| area_code | ph_no  | sub_name     | address                    | type | local_calls |
++-----------+--------+--------------+----------------------------+------+-------------+
+|       229 | 127856 | krishnamurti | chinna kalapet             |    1 |          30 |
+|       221 | 143685 | ayush reddy  | nehru park pillachavady    |    1 |          32 |
+|       220 | 235689 | ram          | near fire station dularpur |    1 |          32 |
+|       226 | 260622 | Orthocare    | main road una              |    3 |          32 |
+|       230 | 260635 | meena        | 52C lathiani               |    1 |          32 |
+|       221 | 262391 | vithin reddy | round side pillachavady    |    1 |          32 |
+|       226 | 269752 | suraj        | colony bangana             |    1 |          30 |
+|       232 | 394523 | jalayog      | main chock dularpur        |    4 |          30 |
+|       234 | 452354 | stayanath    | main town karaikal         |    1 |          30 |
+|       232 | 452356 | PVR          | PVR mega mall sharanpur    |    2 |          20 |
++-----------+--------+--------------+----------------------------+------+-------------+
+10 rows in set (0.001 sec)
+
+MariaDB [telephone]> insert into std_details values(232,'394523','452356',20230314,135032,135502),
+    -> (232,'394523','394523',20230315,152332,152502),
+    -> (226,'269752','260635',20230420,103614,104212),
+    -> (220,'235689','260622',20230425,120614,120702),
+    -> (232,'452354','452356',20230501,113540,113752),
+    -> (230,'260635','229',20230615,143540,143752);
+Query OK, 6 rows affected (0.016 sec)
+Records: 6  Duplicates: 0  Warnings: 0
+
+MariaDB [telephone]> select * from std_details;
++-----------+--------+------------+------------+------------+----------+
+| area_code | ph_no  | call_lee   | call_date  | start_time | end_time |
++-----------+--------+------------+------------+------------+----------+
+|       220 | 235689 | 9445656678 | 2023-02-15 | 12:12:35   | 12:35:42 |
+|       221 | 262391 | 9445656678 | 2023-03-14 | 13:50:32   | 13:55:02 |
+|       232 | 394523 | 452356     | 2023-03-14 | 13:50:32   | 13:55:02 |
+|       232 | 394523 | 394523     | 2023-03-15 | 15:23:32   | 15:25:02 |
+|       226 | 269752 | 260635     | 2023-04-20 | 10:36:14   | 10:42:12 |
+|       220 | 235689 | 9445656678 | 2023-04-25 | 12:06:14   | 12:07:02 |
+|       232 | 452354 | 452356     | 2023-05-01 | 11:35:40   | 11:37:52 |
+|       230 | 260635 | 229        | 2023-06-15 | 14:35:40   | 14:37:52 |
+|       221 | 262391 | 9445656678 | 2023-06-25 | 16:50:32   | 16:55:02 |
+|       223 | 143685 | 452356     | 2023-03-14 | 13:50:32   | 13:55:02 |
++-----------+--------+------------+------------+------------+----------+
+10 rows in set (0.001 sec)
+
+
+
+1.
+MariaDB [telephone]> select area_code,location as area_name,max(no_of_subs) from area_details;
++-----------+-----------+-----------------+
+| area_code | area_name | max(no_of_subs) |
++-----------+-----------+-----------------+
+|       220 | dularpur  |            3524 |
++-----------+-----------+-----------------+
+1 row in set (0.024 sec)
+
+
+2
+MariaDB [telephone]> select s.sub_name,s.ph_no from subscriber_details s join area_details a on s.area_code=a.area_code where s.sub_name=a.officer;
++----------+--------+
+| sub_name | ph_no  |
++----------+--------+
+| meena    | 260635 |
++----------+--------+
+1 row in set (0.009 sec)
+
+
+
+3
+MariaDB [telephone]> select s.sub_name,concat('221-',s.ph_no) as old_no,concat('223-',s.ph_no) as new_no from subscriber_details s  where area_code=223 order by sub_name ASC;
++--------------+------------+------------+
+| sub_name     | old_no     | new_no     |
++--------------+------------+------------+
+| ayush reddy  | 221-143685 | 223-143685 |
+| vithin reddy | 221-262391 | 223-262391 |
++--------------+------------+------------+
+2 rows in set (0.057 sec)
+
+
+
+
+4
+MariaDB [telephone]> SELECT s.sub_name, s.ph_no, COUNT(std.ph_no)
+    -> FROM subscriber_details s
+    -> JOIN std_details std ON s.ph_no = std.ph_no
+    -> WHERE call_lee = 9445656678 AND MONTH(call_date) = MONTH('2023-03-14') - 1
+    -> GROUP BY s.sub_name, s.ph_no
+    -> HAVING COUNT(std.ph_no) < 2;
++----------+--------+------------------+
+| sub_name | ph_no  | COUNT(std.ph_no) |
++----------+--------+------------------+
+| ram      | 235689 |                1 |
++----------+--------+------------------+
+1 row in set (0.002 sec)
+
+5
+
+delimiter //
+create procedure generate_bill(in names varchar(24))
+begin 
+select s.sub_name,(s.local_calls*0.6 + count(std.ph_no)*5),count as 
+net_cost from subscriber_details s join 
+std_details std on s.ph_no=std.ph_no where s.sub_name = names group by std.ph_no ;
+end;//
+delimiter;
+
+MariaDB [telephone]> call generate_bill('ram');
++----------+----------+
+| sub_name | net_cost |
++----------+----------+
+| ram      |     29.2 |
++----------+----------+
+1 row in set (0.077 sec)
+
+
+6
+MariaDB [telephone]> delimiter //
+MariaDB [telephone]> create procedure call_count(in num int)
+    -> begin
+    -> select ph_no,count(ph_no) as no_std,call_lee as called_to,start_time,end_time from std_details
+    -> where ph_no=num and call_date='20230315' group by ph_no;
+    -> end;//
+
+MariaDB [telephone]> call call_count('394523');
++--------+--------+-----------+------------+----------+
+| ph_no  | no_std | called_to | start_time | end_time |
++--------+--------+-----------+------------+----------+
+| 394523 |      1 | 394523    | 15:23:32   | 15:25:02 |
++--------+--------+-----------+------------+----------+
+1 row in set (0.026 sec)
+
+Query OK, 0 rows affected (0.045 sec)
+
+
+
+
+
+7 
+
+
+MariaDB [telephone]> delimiter //
+MariaDB [telephone]> create procedure calling_time(in no int)
+    -> begin
+    -> select area_code,concat(area_code,'-',ph_no),call_lee from std_details where ph_no = no and start_time between '08:00:00'and '12:00:00';
+    ->
+    -> end; //
+Query OK, 0 rows affected (0.075 sec)
+
+MariaDB [telephone]>
+MariaDB [telephone]> delimiter ;
+MariaDB [telephone]> call calling_time('269752');
++-----------+-----------------------------+----------+
+| area_code | concat(area_code,'-',ph_no) | call_lee |
++-----------+-----------------------------+----------+
+|       226 | 226-269752                  | 260635   |
++-----------+-----------------------------+----------+
+1 row in set (0.002 sec)
+
+Query OK, 0 rows affected (0.024 sec)
+
+8.
+delimiter //
+create procedure theatre(in na varchar(20))
+begin
+select a.location,s.sub_name,s.ph_no from subscriber_details s join area_details a on a.area_code=s.area_code where a.location= na and s.type=2;
+
+end; //
+delimiter ;
+
+
+call theatre('saharanpur');
+MariaDB [telephone]> call theatre('saharanpur');
++------------+----------+--------+
+| location   | sub_name | ph_no  |
++------------+----------+--------+
+| saharanpur | PVR      | 452356 |
++------------+----------+--------+
+1 row in set (0.044 sec)
+
+Query OK, 0 rows affected (0.051 sec)
+
+
+9
+MariaDB [telephone]> select sub_name,ph_no from subscriber_details where type = 3 and address = 'rainbow nagar';
++-----------+--------+
+| sub_name  | ph_no  |
++-----------+--------+
+| Orthocare | 260622 |
++-----------+--------+
+1 row in set (0.001 sec)
+
+
+
+
+10
+MariaDB [telephone]> select sub_name,ph_no from subscriber_details where sub_name like 's%' and type = 5 and address = 'lawspet';
++----------+--------+
+| sub_name | ph_no  |
++----------+--------+
+| suraj    | 269752 |
++----------+--------+
+1 row in set (0.001 sec)
+
+
