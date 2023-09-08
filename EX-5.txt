@@ -1,175 +1,70 @@
-MariaDB [bank]> CREATE FUNCTION GetCount(cust_name VARCHAR(255))
-    -> RETURNS INT
-    -> BEGIN
-    ->     DECLARE account_count INT;
-    ->     SELECT COUNT(*) INTO account_count
-    ->     FROM depositor
-    ->     WHERE customer_name = cust_name;
-    ->     RETURN account_count;
-    -> END;
-    ->
-    -> //
-Query OK, 0 rows affected (0.522 sec)
+#include <stdio.h>
+#include <stdlib.h>
+#include <unistd.h>
+#include <sys/types.h>
+#include <sys/ipc.h>
+#include <sys/shm.h>
+#include <sys/wait.h>
 
-MariaDB [bank]>
-MariaDB [bank]> DELIMITER ;
-MariaDB [bank]> select GetCount('Turner');
-+--------------------+
-| GetCount('Turner') |
-+--------------------+
-|                  1 |
-+--------------------+
-1 row in set (0.025 sec)
+int main() {
+    // Define a unique key for the shared memory segment
+    key_t key = ftok("my_shared_memory_key", 'R');
+    if (key == -1) {
+        perror("ftok");
+        exit(1);
+    }
 
-MariaDB [bank]> SELECT c.customer_name, c.customer_street,c.customer_city FROM customer c JOIN depositor d ON c.customer_name = d.customer_name GROUP BY c.customer_name HAVING COUNT(d.account_number) >1;
-+---------------+-----------------+---------------+
-| customer_name | customer_street | customer_city |
-+---------------+-----------------+---------------+
-| Jackson       | Alma            | Palo Alto     |
-+---------------+-----------------+---------------+
-1 row in set (0.001 sec)
+    // Create or access the shared memory segment
+    int shm_id = shmget(key, sizeof(int), IPC_CREAT | 0666);
+    if (shm_id == -1) {
+        perror("shmget");
+        exit(1);
+    }
 
+    // Attach the shared memory segment to the process's address space
+    int *shared_data = (int *)shmat(shm_id, NULL, 0);
+    if (shared_data == (int *)(-1)) {
+        perror("shmat");
+        exit(1);
+    }
 
-MariaDB [bank]> DELIMITER //
-MariaDB [bank]>
-MariaDB [bank]> CREATE FUNCTION get_accounts_by_customer(cust_name VARCHAR(50))
-    -> RETURNS VARCHAR(1000)
-    -> BEGIN
-    ->     DECLARE accounts VARCHAR(1000);
-    ->     SELECT GROUP_CONCAT(account_number) INTO accounts FROM depositor WHERE customer_name = cust_name;
-    ->     RETURN accounts;
-    -> END //
-Query OK, 0 rows affected (0.140 sec)
+    // Parent process writes a value to shared memory
+    *shared_data = 42;
 
-MariaDB [bank]>
-MariaDB [bank]> DELIMITER ;
-MariaDB [bank]> SELECT get_accounts_by_customer('TURNER');
-+------------------------------------+
-| get_accounts_by_customer('TURNER') |
-+------------------------------------+
-| A-305                              |
-+------------------------------------+
-1 row in set (0.029 sec)
+    // Fork a child process to read from shared memory
+    pid_t child_pid = fork();
 
-MariaDB [bank]> DELIMITER //
-MariaDB [bank]>
-MariaDB [bank]> CREATE FUNCTION factorial(n INT)
-    -> RETURNS INT
-    -> BEGIN
-    ->     DECLARE result INT;
-    ->     IF n = 0 THEN
-    ->         SET result = 1;
-    ->     ELSE
-    ->         SET result = 1;
-    ->         WHILE n > 0 DO
-    ->             SET result = result * n;
-    ->             SET n = n - 1;
-    ->         END WHILE;
-    ->     END IF;
-    ->     RETURN result;
-    -> END //
-Query OK, 0 rows affected (0.191 sec)
+    if (child_pid == -1) {
+        perror("fork");
+        exit(1);
+    }
 
-MariaDB [bank]>
-MariaDB [bank]> DELIMITER ;
-MariaDB [bank]> select factorial(5);
-+--------------+
-| factorial(5) |
-+--------------+
-|          120 |
-+--------------+
-1 row in set (0.001 sec)
+    if (child_pid == 0) { // Child process
+        // Read the value from shared memory
+        int value = *shared_data;
+        printf("Child process read: %d\n", value);
 
+        // Detach from shared memory
+        if (shmdt(shared_data) == -1) {
+            perror("shmdt");
+            exit(1);
+        }
+    } else { // Parent process
+        // Wait for the child process to finish
+        wait(NULL);
 
-MariaDB [bank]> DELIMITER //
-MariaDB [bank]>
-MariaDB [bank]> CREATE PROCEDURE print_number_of_accounts()
-    -> BEGIN
-    ->     DECLARE account_count INT;
-    ->     SELECT COUNT(*) INTO account_count FROM account;
-    ->     SELECT CONCAT('Number of accounts: ', account_count) AS result;
-    -> END //
-Query OK, 0 rows affected (0.143 sec)
+        // Detach from shared memory
+        if (shmdt(shared_data) == -1) {
+            perror("shmdt");
+            exit(1);
+        }
 
-MariaDB [bank]>
-MariaDB [bank]> DELIMITER ;
-MariaDB [bank]> CALL print_number_of_accounts();
-+------------------------+
-| result                 |
-+------------------------+
-| Number of accounts: 20 |
-+------------------------+
-1 row in set (0.048 sec)
+        // Optionally, remove the shared memory segment
+        if (shmctl(shm_id, IPC_RMID, NULL) == -1) {
+            perror("shmctl");
+            exit(1);
+        }
+    }
 
-Query OK, 1 row affected (0.074 sec)
-
-MariaDB [bank]> DELIMITER //
-MariaDB [bank]>
-MariaDB [bank]> CREATE PROCEDURE is_weekend(IN check_date DATE)
-    -> BEGIN
-    ->   DECLARE result VARCHAR(20);
-    ->
-    ->   IF DAYOFWEEK(check_date) IN (1, 7) THEN
-    ->     SET result = 'WEEKEND';
-    ->   ELSE
-    ->     SET result = 'WEEKDAY';
-    ->   END IF;
-    ->
-    ->   SELECT result;
-    -> END //
-Query OK, 0 rows affected (0.197 sec)
-
-MariaDB [bank]>
-MariaDB [bank]> DELIMITER ;
-MariaDB [bank]> call is_weekend('2023-01-31');
-+---------+
-| result  |
-+---------+
-| WEEKDAY |
-+---------+
-1 row in set (0.042 sec)
-
-Query OK, 0 rows affected (0.049 sec)
-
-MariaDB [bank]> DELIMITER //
-MariaDB [bank]>
-MariaDB [bank]> CREATE PROCEDURE perryridge_loans()
-    -> BEGIN
-    ->   SELECT loan_number
-    ->   FROM loan
-    ->   WHERE branch_name = 'Perryridge' AND amount > 1200;
-    -> END //
-Query OK, 0 rows affected (0.181 sec)
-
-MariaDB [bank]>
-MariaDB [bank]> DELIMITER ;
-MariaDB [bank]> CALL perryridge_loans();
-+-------------+
-| loan_number |
-+-------------+
-| L-15        |
-| L-16        |
-+-------------+
-2 rows in set (0.090 sec)
-
-Query OK, 0 rows affected (0.120 sec)
-
-MariaDB [bank]> DELIMITER //
-MariaDB [bank]>
-MariaDB [bank]> CREATE FUNCTION avg_loan_amount_by_branch(branch_name VARCHAR(50)) RETURNS DECIMAL(10,2) DETERMINISTIC
-    -> BEGIN
-    ->   DECLARE avg_amount DECIMAL(10,2);
-    ->   SELECT AVG(amount) INTO avg_amount FROM loan WHERE branch_name = branch_name;
-    ->   RETURN avg_amount;
-    -> END //
-Query OK, 0 rows affected (0.122 sec)
-
-MariaDB [bank]>
-MariaDB [bank]> DELIMITER ;
-MariaDB [bank]> SELECT avg_loan_amount_by_branch('Perryridge');
-+-----------------------------------------+
-| avg_loan_amount_by_branch('Perryridge') |
-+-----------------------------------------+
-|                               108750.00 |
-+-----------------------------------------+
-1 row in set (0.031 sec)
+    return 0;
+}
